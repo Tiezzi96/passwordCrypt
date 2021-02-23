@@ -14,11 +14,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import passwordcrypt.DesEncrypterThread;
+
 
 /**
  *
@@ -29,9 +32,8 @@ public class PasswordCrypt {
     /**
      * @param args the command line arguments
      */
-    
+            
     /*
-    
     public static void main(String[] args) throws Exception {
         File file = new File("src/passwordcrypt/dataset_password.txt");
         FileReader fr = new FileReader(file);
@@ -73,6 +75,9 @@ public class PasswordCrypt {
         esecutore.shutdown();
     
     }*/
+    
+    
+    
     public static void main(String[] args) throws Exception {
         File file = new File("src/passwordcrypt/dataset_password.txt");
         FileReader fr = new FileReader(file);
@@ -91,7 +96,7 @@ public class PasswordCrypt {
             list.add(strLine);
         }
         
-        File file2 = new File("src/passwordcrypt/dataset_password2.txt");
+        File file2 = new File("src/passwordcrypt/dataset_password.txt");
         FileReader fr2 = new FileReader(file2);
         //StringBuilder sb = new StringBuilder();
         String strLine2 = "";
@@ -124,15 +129,7 @@ public class PasswordCrypt {
         }
         System.out.println(list.size());
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
     }
+    
 }
 

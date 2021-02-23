@@ -9,6 +9,8 @@ package passwordcrypt;
  *
  * @author bernardo
  */
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64DecoderStream;
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BASE64EncoderStream;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -20,13 +22,13 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.*;
 import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 class DesEncrypter {
   Cipher ecipher;
 
   Cipher dcipher;
-  
-  BASE64Encoder encoder = new BASE64Encoder(); 
+   
 
   DesEncrypter(SecretKey key) throws Exception {
     ecipher = Cipher.getInstance("DES");
@@ -40,14 +42,16 @@ class DesEncrypter {
     byte[] utf8 = str.getBytes("UTF8");
     // Encrypt
     byte[] enc = ecipher.doFinal(utf8);
+    
+    enc = BASE64EncoderStream.encode(enc);
 
     // Encode bytes to base64 to get a string
-    return encoder.encode(enc);
+    return new String(enc);
   }
 
   public String decrypt(String str) throws Exception {
     // Decode base64 to get bytes
-    byte[] dec = new sun.misc.BASE64Decoder().decodeBuffer(str);
+    byte[] dec = BASE64DecoderStream.decode(str.getBytes());
 
     byte[] utf8 = dcipher.doFinal(dec);
 
@@ -66,7 +70,7 @@ class DesEncrypter {
   }
   
   public static void main(String[] args) throws Exception {
-        File file = new File("src/passwordcrypt/dataset_password2.txt");
+        File file = new File("src/passwordcrypt/dataset_password.txt");
         FileReader fr = new FileReader(file);
         //StringBuilder sb = new StringBuilder();
         String strLine = "";
@@ -80,7 +84,7 @@ class DesEncrypter {
             list.add(strLine);
         }
         /*
-        File file2 = new File("src/passwordcrypt/dataset_password2.txt");
+        File file2 = new File("src/passwordcrypt/dataset_password.txt");
         FileReader fr2 = new FileReader(file2);
         BufferedReader br2 = new BufferedReader(fr2);
         String strLine2 = "";
@@ -117,8 +121,12 @@ class DesEncrypter {
             System.out.println("no");
         }
         String firstPassword=encrypter.encrypt(str[0]);
+        firstPassword=encrypter.decrypt(firstPassword);
+        System.out.println(str[0]+" "+firstPassword);
         String secondPassword=encrypter.encrypt(str[(str.length/2)+1]);
+        System.out.println(secondPassword);
         String thirdPassword=encrypter.encrypt(str[str.length-1]);
+        System.out.println(thirdPassword);
         String password="";
         byte[] utf8byte=encrypter.getbyteCrypted(str[str.length-1]);
         long initTime=System.currentTimeMillis();
