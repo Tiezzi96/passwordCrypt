@@ -33,21 +33,17 @@ public class DesEncrypterThread extends Thread{
     private String passwordcrypted;
     private byte[] utf8passwordcrypted;
     private AtomicInteger numPassword;
-    private AtomicLong timeout;
     private String name;
-    private AtomicBoolean passCheck;
     private int numThreads;
     private SecretKey Key;
     
     
-    public DesEncrypterThread(String name, int threads, String password, AtomicInteger num, AtomicLong timeout, AtomicBoolean b, SecretKey key, byte []utf8password) throws  Exception{
+    public DesEncrypterThread(String name, int threads, String password, AtomicInteger num, SecretKey key, byte []utf8password) throws  Exception{
         this.name=name;
         this.passwordcrypted=password;
         this.utf8passwordcrypted=utf8password;
         this.numPassword=num;
         this.encrypter=new DesEncrypter(key);
-        this.timeout=timeout;
-        this.passCheck=b;
         this.numThreads=threads;
         this.Key=key;
     }
@@ -69,8 +65,7 @@ public class DesEncrypterThread extends Thread{
                     numPassword.decrementAndGet();
                     System.out.println("Thread "+this.name);
                     System.out.println("Password found: "+password);
-                    timeout.set(System.nanoTime());
-                    passCheck.set(true);
+                    
                 }
                 //System.out.println(numPassword.get());
                 
@@ -93,7 +88,7 @@ public class DesEncrypterThread extends Thread{
         String [] str=s;
         int [] Threads=num;
         int test = 25;
-        //FileWriter myWriter = new FileWriter("src/passwordcrypt/value_speedup_first_password.txt");
+        FileWriter myWriter = new FileWriter("src/passwordcrypt/value_speedup_first_password2.txt");
         HashMap<String, String> ExecutionTime=new HashMap<>();
         int index=0;
         System.out.println("index "+index);
@@ -129,13 +124,11 @@ public class DesEncrypterThread extends Thread{
                 ExecutorService esecutore = Executors.newFixedThreadPool(Threads[i]);
 
                 AtomicInteger number = new AtomicInteger(1);
-                AtomicLong timeout = new AtomicLong();
-                AtomicBoolean passwordcheck = new AtomicBoolean(false);
 
                 long initTimeParallel = System.nanoTime();
-
+                DesEncrypterThread.setdataset(str);
                 for (int j = 0; j < Threads[i]; j++) {
-                    esecutore.submit(new DesEncrypterThread("" + j + "", Threads[i], passCrypted, number, timeout, passwordcheck, k, bytepassCrypted));
+                    esecutore.submit(new DesEncrypterThread("" + j + "", Threads[i], passCrypted, number, k, bytepassCrypted));
                 }
                 esecutore.shutdown();
                 try {
@@ -143,7 +136,7 @@ public class DesEncrypterThread extends Thread{
                     long endTimeParallel = System.nanoTime();
                     TimeParallel += (endTimeParallel - initTimeParallel);
                     System.out.println("ciao " + String.valueOf(endTimeParallel - initTimeParallel));
-                    System.out.println("ciao " + String.valueOf(timeout.get() - initTimeParallel));
+                    //System.out.println("ciao " + String.valueOf(timeout.get() - initTimeParallel));
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
 
@@ -151,8 +144,8 @@ public class DesEncrypterThread extends Thread{
             }
             TimeParallel/=test;
             
-            //myWriter.write(String.valueOf((double) ((double) TimeSequential / (double) TimeParallel))+"\n");
-            //myWriter.flush();
+            myWriter.write(String.valueOf((double) ((double) TimeSequential / (double) TimeParallel))+"\n");
+            myWriter.flush();
             System.out.println(String.valueOf((double) ((double) TimeSequential / (double) TimeParallel)));
             ExecutionTime.put(String.valueOf(Threads[i]), String.valueOf((double) ((double) TimeSequential / (double) TimeParallel)));
             System.out.println("Speedup for "+Threads[i]+" threads is: "+ (double) ((double) TimeSequential / (double) TimeParallel));
@@ -164,7 +157,7 @@ public class DesEncrypterThread extends Thread{
     public static HashMap passwordcryptparallelRandom(int [] num, String [] s, SecretKey k, DesEncrypter encrypter) throws Exception{
         String [] str=s;
         int [] Threads=num;
-        int test = 200;
+        int test = 10;
         FileWriter myWriter = new FileWriter("src/passwordcrypt/value_speedup_random_password2.txt");
         HashMap<String, String> ExecutionTime=new HashMap<>();
         long TimeSequential=0;
@@ -201,8 +194,6 @@ public class DesEncrypterThread extends Thread{
             
             for (int iterazioni = 0; iterazioni < test; iterazioni++) {
                 AtomicInteger number = new AtomicInteger(1);
-                AtomicLong timeout = new AtomicLong();
-                AtomicBoolean passwordcheck = new AtomicBoolean(false);
                 ExecutorService esecutore = Executors.newFixedThreadPool(Threads[i]);
                 String password = str[index[iterazioni]];
                 String passCrypted = encrypter.encrypt(password);
@@ -210,7 +201,7 @@ public class DesEncrypterThread extends Thread{
                 DesEncrypterThread.setdataset(str);
                 long initTimeParallel = System.nanoTime();
                 for (int j = 0; j < Threads[i]; j++) {
-                    esecutore.submit(new DesEncrypterThread("" + j + "", Threads[i], passCrypted, number, timeout, passwordcheck, k, bytepassCrypted));
+                    esecutore.submit(new DesEncrypterThread("" + j + "", Threads[i], passCrypted, number, k, bytepassCrypted));
                 }
                 esecutore.shutdown();
                 try {
@@ -218,7 +209,7 @@ public class DesEncrypterThread extends Thread{
                     long endTimeParallel = System.nanoTime();
                     TimeParallel += (endTimeParallel - initTimeParallel);
                     System.out.println("ciao " + String.valueOf(endTimeParallel - initTimeParallel));
-                    System.out.println("ciao " + String.valueOf(timeout.get() - initTimeParallel));
+                    //System.out.println("ciao " + String.valueOf(timeout.get() - initTimeParallel));
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
 
